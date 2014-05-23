@@ -49,14 +49,42 @@ function shiftRows()	{
 	document.getElementsByName("shMatrix12")[0].value = document.getElementsByName("sMatrix15")[0].value;
 }
 
+
+
+//the below function was ripped from http://people.eku.edu/styere/Encrypt/JS-AES.html
+function aes_mul( a, b )	{
+   var res = 0;
+   while( a > 0 )	{
+      if ( (a&1) != 0 )
+         res = res ^ b;		// "add" to the result
+      a >>>= 1;			// shift a to get next higher-order bit
+      b <<= 1;			// shift multiplier also
+   }
+   // now reduce it modulo x**8 + x**4 + x**3 + x + 1
+   var hbit = 0x10000;		// bit to test if we need to take action
+   var modulus = 0x11b00;	// modulus - XOR by this to change value
+   while( hbit >= 0x100 )	{
+      if ( (res & hbit) != 0 )		// if the high-order bit is set
+         res ^= modulus;	// XOR with the modulus
+
+      // prepare for the next loop
+      hbit >>= 1;
+      modulus >>= 1;
+   }
+   return res;
+}
+
+
+
 </script>
 </head>
 <body>
 <p>AES takes an input of 128 bits, grouped into 16 bytes of 8 bits.  Enter your 128 bits below in either hexadecimal or binary format.</p>
 
 <!-- ToDo:
-	1) 2 versions of the page, one with everything hex, one with everything binary
-	2) do hex version of page first
+	-- implement the mixColumns step
+	-- put the buttons & matrices into a table for better page layout
+	-- create a page for the key expansion
 	-->
 
 <p>hex: 
@@ -77,10 +105,11 @@ function shiftRows()	{
 <input type="text" name="hByte14" maxlength="2" size="2">
 <input type="text" name="hByte15" maxlength="2" size="2">
 </p>
-<p>These 16 bytes are then arranged into a 4 x 4 matrix.  From this matrix we will do the 10 rounds of the AES algorithm (if the key has 192 bits, it's 12 rounds, and when the key has 256 bits, it's 14 rounds).  Each round has 4 steps.</p>
+<p>These 16 bytes are then arranged into a 4 x 4 matrix.  From this matrix we will do the 10 rounds of the AES algorithm (if the key has 192 bits, it's 12 rounds, and when the key has 256 bits, it's 14 rounds).  Each round has 4 steps, Byte Substitution, Row Shifting, Column Mixing, then adding the Key for that round.</p>
 <p><button onclick="populateMatrix()">Populate the Matrix</button>
 <button onclick="subBytes()">Perform SubBytes Step</button>
 <button onclick="shiftRows()">Perform ShiftRows Step</button>
+<button onclick="mixColumns()">Perform MixColumns Step</button>
 <button onclick="addRoundKey()">Perform Add Round Key Step</button></p>
 
 <strong>Round 1</strong>
@@ -175,6 +204,16 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <input type="text" name="bByte14" maxlength="8" size="8">
 <input type="text" name="bByte15" maxlength="8" size="8">
 </p>
+
+Useful reference links:
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Finite_field_arithmetic#Multiplication">http://en.wikipedia.org/wiki/Finite_field_arithmetic#Multiplication</a></li>
+<li><a href="http://people.eku.edu/styere/Encrypt/JS-AES.html">http://people.eku.edu/styere/Encrypt/JS-AES.html</a></li>
+<li><a href="https://engineering.purdue.edu/kak/compsec/NewLectures/Lecture8.pdf">https://engineering.purdue.edu/kak/compsec/NewLectures/Lecture8.pdf</a></li>
+<li><a href="http://www.cs.bc.edu/~straubin/cs381-05/blockciphers/rijndael_ingles2004.swf">http://www.cs.bc.edu/~straubin/cs381-05/blockciphers/rijndael_ingles2004.swf</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Advanced_Encryption_Standard">http://en.wikipedia.org/wiki/Advanced_Encryption_Standard</a></li>
+<li><a href=""></a></li>
+</ul>
 
 </body>
 </html>
