@@ -184,9 +184,7 @@ function allSteps()	{
 	addRoundKey(10);
 }
 
-
 //	ToDo:
-//	-- make the functions have an additional parameter to 
 //	-- create a page for the key expansion
 
 </script>
@@ -234,8 +232,6 @@ function allSteps()	{
 
 <p>These 16 bytes are then arranged into a 4 x 4 matrix.  From this matrix we will do the 10 rounds of the AES algorithm (if the key has 192 bits, it's 12 rounds, and when the key has 256 bits, it's 14 rounds).  Each round has 4 steps, Byte Substitution, Row Shifting, Column Mixing, then adding the Key for that round.</p>
 <p>
-
-
 
 <button onclick="expandKey()">Perform Key Expansion</button><button onclick="allSteps()">Perform Complete Encryption</button></p>
 
