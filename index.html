@@ -5,7 +5,7 @@
 function populateMatrix()	{
 	for (var i=0;i<16;i++)	{
 		//alert(document.getElementsByName("hByte"+i)[0].value);
-		document.getElementsByName("hMatrix"+i)[0].value = document.getElementsByName("hByte"+i)[0].value;
+		document.getElementsByName("0hMatrix"+i)[0].value = document.getElementsByName("hByte"+i)[0].value;
 	}
 }
 
@@ -23,33 +23,40 @@ var Sbox = new Array(99,124,119,123,242,107,111,197,48,1,103,43,254,215,171,
   158,225,248,152,17,105,217,142,148,155,30,135,233,206,85,40,223,140,161,
   137,13,191,230,66,104,65,153,45,15,176,84,187,22);
   
-function subBytes()	{
+function subBytes(num)	{
 	for (var i=0;i<16;i++)	{
-		hexVal = parseInt(document.getElementsByName("hMatrix"+i)[0].value,16);
-		document.getElementsByName("sMatrix"+i)[0].value = Sbox[hexVal].toString(16);
+		hexVal = parseInt(document.getElementsByName(num+"aMatrix"+i)[0].value,16);
+		document.getElementsByName(num+"sMatrix"+i)[0].value = Sbox[hexVal].toString(16);
 	}
 }
 
-function shiftRows()	{
+function shiftRows(num)	{
 	//ToDo: this is so ugly, make smaller using division of i
 	for (var i=0;i<4;i++)	{
-		document.getElementsByName("shMatrix"+i)[0].value = document.getElementsByName("sMatrix"+i)[0].value;
+		document.getElementsByName(num+"shMatrix"+i)[0].value = document.getElementsByName(num+"sMatrix"+i)[0].value;
 	}
 	for (var i=4;i<7;i++)	{
-		document.getElementsByName("shMatrix"+i)[0].value = document.getElementsByName("sMatrix"+(i+1))[0].value;
+		document.getElementsByName(num+"shMatrix"+i)[0].value = document.getElementsByName(num+"sMatrix"+(i+1))[0].value;
 	}
 	for (var i=15;i>12;i--)	{
-		document.getElementsByName("shMatrix"+i)[0].value = document.getElementsByName("sMatrix"+(i-1))[0].value;
+		document.getElementsByName(num+"shMatrix"+i)[0].value = document.getElementsByName(num+"sMatrix"+(i-1))[0].value;
 	}
-	document.getElementsByName("shMatrix7")[0].value = document.getElementsByName("sMatrix4")[0].value;
-	document.getElementsByName("shMatrix8")[0].value = document.getElementsByName("sMatrix10")[0].value;
-	document.getElementsByName("shMatrix9")[0].value = document.getElementsByName("sMatrix11")[0].value;
-	document.getElementsByName("shMatrix10")[0].value = document.getElementsByName("sMatrix8")[0].value;
-	document.getElementsByName("shMatrix11")[0].value = document.getElementsByName("sMatrix9")[0].value;
-	document.getElementsByName("shMatrix12")[0].value = document.getElementsByName("sMatrix15")[0].value;
+	document.getElementsByName(num+"shMatrix7")[0].value = document.getElementsByName(num+"sMatrix4")[0].value;
+	document.getElementsByName(num+"shMatrix8")[0].value = document.getElementsByName(num+"sMatrix10")[0].value;
+	document.getElementsByName(num+"shMatrix9")[0].value = document.getElementsByName(num+"sMatrix11")[0].value;
+	document.getElementsByName(num+"shMatrix10")[0].value = document.getElementsByName(num+"sMatrix8")[0].value;
+	document.getElementsByName(num+"shMatrix11")[0].value = document.getElementsByName(num+"sMatrix9")[0].value;
+	document.getElementsByName(num+"shMatrix12")[0].value = document.getElementsByName(num+"sMatrix15")[0].value;
 }
 
-
+function mixColumns(num)	{
+	for (var i=12;i<16;i++)	{
+		document.getElementsByName(num+"mcMatrix"+(i-12))[0].value = (aes_mul(2,parseInt(document.getElementsByName(num+"shMatrix"+(i-12))[0].value,16)) ^ aes_mul(3,parseInt(document.getElementsByName(num+"shMatrix"+(i-8))[0].value,16)) ^ parseInt(document.getElementsByName(num+"shMatrix"+(i-4))[0].value,16) ^ parseInt(document.getElementsByName(num+"shMatrix"+i)[0].value,16)).toString(16);
+		document.getElementsByName(num+"mcMatrix"+(i-8))[0].value = (parseInt(document.getElementsByName(num+"shMatrix"+(i-12))[0].value,16) ^ aes_mul(2,parseInt(document.getElementsByName(num+"shMatrix"+(i-8))[0].value,16)) ^ aes_mul(3,parseInt(document.getElementsByName(num+"shMatrix"+(i-4))[0].value,16)) ^ parseInt(document.getElementsByName(num+"shMatrix"+i)[0].value,16)).toString(16);
+		document.getElementsByName(num+"mcMatrix"+(i-4))[0].value = (parseInt(document.getElementsByName(num+"shMatrix"+(i-12))[0].value,16) ^ parseInt(document.getElementsByName(num+"shMatrix"+(i-8))[0].value,16) ^ aes_mul(2,parseInt(document.getElementsByName(num+"shMatrix"+(i-4))[0].value,16)) ^ aes_mul(3,parseInt(document.getElementsByName(num+"shMatrix"+i)[0].value,16))).toString(16);
+		document.getElementsByName(num+"mcMatrix"+i)[0].value = (aes_mul(3,parseInt(document.getElementsByName(num+"shMatrix"+(i-12))[0].value,16)) ^ parseInt(document.getElementsByName(num+"shMatrix"+(i-8))[0].value,16) ^ parseInt(document.getElementsByName(num+"shMatrix"+(i-4))[0].value,16) ^ aes_mul(2,parseInt(document.getElementsByName(num+"shMatrix"+i)[0].value,16))).toString(16);
+	}
+}
 
 //the below function was ripped from http://people.eku.edu/styere/Encrypt/JS-AES.html
 function aes_mul( a, b )	{
@@ -74,20 +81,120 @@ function aes_mul( a, b )	{
    return res;
 }
 
+function expandKey()	{
+	for (var i=0;i<16;i++)	{
+		document.getElementsByName("0kMatrix"+i)[0].value = document.getElementsByName("kByte"+i)[0].value;
+	}
+	var RCON = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
+	
+	for (var i=1;i<11;i++)	{
+		document.getElementsByName(i+"kMatrix0")[0].value = (parseInt(document.getElementsByName((i-1)+"kMatrix0")[0].value,16) ^ RCON[i] ^ Sbox[parseInt(document.getElementsByName((i-1)+"kMatrix13")[0].value,16)]).toString(16);
+		document.getElementsByName(i+"kMatrix1")[0].value = (parseInt(document.getElementsByName((i-1)+"kMatrix1")[0].value,16) ^ Sbox[parseInt(document.getElementsByName((i-1)+"kMatrix14")[0].value,16)]).toString(16);
+		document.getElementsByName(i+"kMatrix2")[0].value = (parseInt(document.getElementsByName((i-1)+"kMatrix2")[0].value,16) ^ Sbox[parseInt(document.getElementsByName((i-1)+"kMatrix15")[0].value,16)]).toString(16);
+		document.getElementsByName(i+"kMatrix3")[0].value = (parseInt(document.getElementsByName((i-1)+"kMatrix3")[0].value,16) ^ Sbox[parseInt(document.getElementsByName((i-1)+"kMatrix12")[0].value,16)]).toString(16);
 
+		for (var j=4;j<16;j++)	{
+			document.getElementsByName(i+"kMatrix"+j)[0].value = (parseInt(document.getElementsByName((i-1)+"kMatrix"+j)[0].value,16) ^ parseInt(document.getElementsByName(i+"kMatrix"+(j-4))[0].value,16)).toString(16);
+		}
+	}
+	
+	for (var i=0;i<11;i++)	{
+		var temp = document.getElementsByName(i+"kMatrix4")[0].value;
+		document.getElementsByName(i+"kMatrix4")[0].value = document.getElementsByName(i+"kMatrix1")[0].value;
+		document.getElementsByName(i+"kMatrix1")[0].value = temp;
+		temp = document.getElementsByName(i+"kMatrix8")[0].value;
+		document.getElementsByName(i+"kMatrix8")[0].value = document.getElementsByName(i+"kMatrix2")[0].value;
+		document.getElementsByName(i+"kMatrix2")[0].value = temp;
+		temp = document.getElementsByName(i+"kMatrix12")[0].value;
+		document.getElementsByName(i+"kMatrix12")[0].value = document.getElementsByName(i+"kMatrix3")[0].value;
+		document.getElementsByName(i+"kMatrix3")[0].value = temp;
+		temp = document.getElementsByName(i+"kMatrix13")[0].value;
+		document.getElementsByName(i+"kMatrix13")[0].value = document.getElementsByName(i+"kMatrix7")[0].value;
+		document.getElementsByName(i+"kMatrix7")[0].value = temp;
+		temp = document.getElementsByName(i+"kMatrix14")[0].value;
+		document.getElementsByName(i+"kMatrix14")[0].value = document.getElementsByName(i+"kMatrix11")[0].value;
+		document.getElementsByName(i+"kMatrix11")[0].value = temp;
+		temp = document.getElementsByName(i+"kMatrix9")[0].value;
+		document.getElementsByName(i+"kMatrix9")[0].value = document.getElementsByName(i+"kMatrix6")[0].value;
+		document.getElementsByName(i+"kMatrix6")[0].value = temp;
+	}
+}
+
+function addRoundKey(num)	{
+	if (num != 0)	{
+		if (num != 10)	{
+			for (var i=0;i<16;i++)	{
+				document.getElementsByName(num+"aMatrix"+i)[0].value = (parseInt(document.getElementsByName(num+"kMatrix"+i)[0].value,16) ^ parseInt(document.getElementsByName((num-1)+"mcMatrix"+i)[0].value,16)).toString(16);
+			}
+		}
+	} else {
+		for (var i=0;i<16;i++)	{
+			document.getElementsByName("0aMatrix"+i)[0].value = (parseInt(document.getElementsByName("0kMatrix"+i)[0].value,16) ^ parseInt(document.getElementsByName("0hMatrix"+i)[0].value,16)).toString(16);
+		}
+	}
+	
+	if (num == 10)	{
+		for (var i=0;i<16;i++)	{
+			document.getElementsByName("10aMatrix"+i)[0].value = (parseInt(document.getElementsByName("10kMatrix"+i)[0].value,16) ^ parseInt(document.getElementsByName("9shMatrix"+i)[0].value,16)).toString(16);
+		}
+	}
+}
+
+function allSteps()	{
+	populateMatrix();
+	addRoundKey(0);
+	subBytes(0);
+	shiftRows(0);
+	mixColumns(0);
+	addRoundKey(1);
+	subBytes(1);
+	shiftRows(1);
+	mixColumns(1);
+	addRoundKey(2);
+	subBytes(2);
+	shiftRows(2);
+	mixColumns(2);
+	addRoundKey(3);
+	subBytes(3);
+	shiftRows(3);
+	mixColumns(3);
+	addRoundKey(4);
+	subBytes(4);
+	shiftRows(4);
+	mixColumns(4);
+	addRoundKey(5);
+	subBytes(5);
+	shiftRows(5);
+	mixColumns(5);
+	addRoundKey(6);
+	subBytes(6);
+	shiftRows(6);
+	mixColumns(6);
+	addRoundKey(7);
+	subBytes(7);
+	shiftRows(7);
+	mixColumns(7);
+	addRoundKey(8);
+	subBytes(8);
+	shiftRows(8);
+	mixColumns(8);
+	addRoundKey(9);
+	subBytes(9);
+	shiftRows(9);
+	addRoundKey(10);
+}
+
+
+//	ToDo:
+//	-- make the functions have an additional parameter to 
+//	-- create a page for the key expansion
 
 </script>
 </head>
 <body>
-<p>AES takes an input of 128 bits, grouped into 16 bytes of 8 bits.  Enter your 128 bits below in either hexadecimal or binary format.</p>
+<p>AES takes an input of 128 bits, grouped into 16 bytes of 8 bits.  Enter your 128 bits below in hexadecimal format.</p>
 
-<!-- ToDo:
-	-- implement the mixColumns step
-	-- put the buttons & matrices into a table for better page layout
-	-- create a page for the key expansion
-	-->
-
-<p>hex: 
+<p>Plaintext (in hex): <br />
 <input type="text" name="hByte0" maxlength="2" size="2">
 <input type="text" name="hByte1" maxlength="2" size="2">
 <input type="text" name="hByte2" maxlength="2" size="2">
@@ -105,114 +212,1236 @@ function aes_mul( a, b )	{
 <input type="text" name="hByte14" maxlength="2" size="2">
 <input type="text" name="hByte15" maxlength="2" size="2">
 </p>
+
+<p>Encryption key (in hex): <br />
+<input type="text" name="kByte0" maxlength="2" size="2">
+<input type="text" name="kByte1" maxlength="2" size="2">
+<input type="text" name="kByte2" maxlength="2" size="2">
+<input type="text" name="kByte3" maxlength="2" size="2">
+<input type="text" name="kByte4" maxlength="2" size="2">
+<input type="text" name="kByte5" maxlength="2" size="2">
+<input type="text" name="kByte6" maxlength="2" size="2">
+<input type="text" name="kByte7" maxlength="2" size="2">
+<input type="text" name="kByte8" maxlength="2" size="2">
+<input type="text" name="kByte9" maxlength="2" size="2">
+<input type="text" name="kByte10" maxlength="2" size="2">
+<input type="text" name="kByte11" maxlength="2" size="2">
+<input type="text" name="kByte12" maxlength="2" size="2">
+<input type="text" name="kByte13" maxlength="2" size="2">
+<input type="text" name="kByte14" maxlength="2" size="2">
+<input type="text" name="kByte15" maxlength="2" size="2">
+</p>
+
 <p>These 16 bytes are then arranged into a 4 x 4 matrix.  From this matrix we will do the 10 rounds of the AES algorithm (if the key has 192 bits, it's 12 rounds, and when the key has 256 bits, it's 14 rounds).  Each round has 4 steps, Byte Substitution, Row Shifting, Column Mixing, then adding the Key for that round.</p>
-<p><button onclick="populateMatrix()">Populate the Matrix</button>
-<button onclick="subBytes()">Perform SubBytes Step</button>
-<button onclick="shiftRows()">Perform ShiftRows Step</button>
-<button onclick="mixColumns()">Perform MixColumns Step</button>
-<button onclick="addRoundKey()">Perform Add Round Key Step</button></p>
+<p>
+
+
+
+<button onclick="expandKey()">Perform Key Expansion</button><button onclick="allSteps()">Perform Complete Encryption</button></p>
 
 <strong>Round 1</strong>
 The SubByte transformation is the first step of each round.  Each byte in our matrix is substituted with another value.  The other value comes from what we call the S-Box.  
 <br />
+<table border="1">
+<tr>
+<td>
 <strong>Initial</strong><br />
-<input type="text" name="hMatrix0" maxlength="2" size="2">
-<input type="text" name="hMatrix1" maxlength="2" size="2">
-<input type="text" name="hMatrix2" maxlength="2" size="2">
-<input type="text" name="hMatrix3" maxlength="2" size="2"><br />
-<input type="text" name="hMatrix4" maxlength="2" size="2">
-<input type="text" name="hMatrix5" maxlength="2" size="2">
-<input type="text" name="hMatrix6" maxlength="2" size="2">
-<input type="text" name="hMatrix7" maxlength="2" size="2"><br />
-<input type="text" name="hMatrix8" maxlength="2" size="2">
-<input type="text" name="hMatrix9" maxlength="2" size="2">
-<input type="text" name="hMatrix10" maxlength="2" size="2">
-<input type="text" name="hMatrix11" maxlength="2" size="2"><br />
-<input type="text" name="hMatrix12" maxlength="2" size="2">
-<input type="text" name="hMatrix13" maxlength="2" size="2">
-<input type="text" name="hMatrix14" maxlength="2" size="2">
-<input type="text" name="hMatrix15" maxlength="2" size="2"><br />
+<button onclick="populateMatrix()">Populate the Matrix</button>
+</td><td>
+<input type="text" name="0hMatrix0" maxlength="2" size="2">
+<input type="text" name="0hMatrix1" maxlength="2" size="2">
+<input type="text" name="0hMatrix2" maxlength="2" size="2">
+<input type="text" name="0hMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="0hMatrix4" maxlength="2" size="2">
+<input type="text" name="0hMatrix5" maxlength="2" size="2">
+<input type="text" name="0hMatrix6" maxlength="2" size="2">
+<input type="text" name="0hMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="0hMatrix8" maxlength="2" size="2">
+<input type="text" name="0hMatrix9" maxlength="2" size="2">
+<input type="text" name="0hMatrix10" maxlength="2" size="2">
+<input type="text" name="0hMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="0hMatrix12" maxlength="2" size="2">
+<input type="text" name="0hMatrix13" maxlength="2" size="2">
+<input type="text" name="0hMatrix14" maxlength="2" size="2">
+<input type="text" name="0hMatrix15" maxlength="2" size="2"><br />
 <br />
-<input type="text" name="sMatrix0" maxlength="2" size="2">
-<input type="text" name="sMatrix1" maxlength="2" size="2">
-<input type="text" name="sMatrix2" maxlength="2" size="2">
-<input type="text" name="sMatrix3" maxlength="2" size="2"><br />
-<input type="text" name="sMatrix4" maxlength="2" size="2">
-<input type="text" name="sMatrix5" maxlength="2" size="2">
-<input type="text" name="sMatrix6" maxlength="2" size="2">
-<input type="text" name="sMatrix7" maxlength="2" size="2"><br />
-<input type="text" name="sMatrix8" maxlength="2" size="2">
-<input type="text" name="sMatrix9" maxlength="2" size="2">
-<input type="text" name="sMatrix10" maxlength="2" size="2">
-<input type="text" name="sMatrix11" maxlength="2" size="2"><br />
-<input type="text" name="sMatrix12" maxlength="2" size="2">
-<input type="text" name="sMatrix13" maxlength="2" size="2">
-<input type="text" name="sMatrix14" maxlength="2" size="2">
-<input type="text" name="sMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="addRoundKey(0)">Add Round Key</button><br />
+<input type="text" name="0kMatrix0" maxlength="2" size="2">
+<input type="text" name="0kMatrix1" maxlength="2" size="2">
+<input type="text" name="0kMatrix2" maxlength="2" size="2">
+<input type="text" name="0kMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="0kMatrix4" maxlength="2" size="2">
+<input type="text" name="0kMatrix5" maxlength="2" size="2">
+<input type="text" name="0kMatrix6" maxlength="2" size="2">
+<input type="text" name="0kMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="0kMatrix8" maxlength="2" size="2">
+<input type="text" name="0kMatrix9" maxlength="2" size="2">
+<input type="text" name="0kMatrix10" maxlength="2" size="2">
+<input type="text" name="0kMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="0kMatrix12" maxlength="2" size="2">
+<input type="text" name="0kMatrix13" maxlength="2" size="2">
+<input type="text" name="0kMatrix14" maxlength="2" size="2">
+<input type="text" name="0kMatrix15" maxlength="2" size="2"><br />
+</td>
+<td>
+<input type="text" name="0aMatrix0" maxlength="2" size="2">
+<input type="text" name="0aMatrix1" maxlength="2" size="2">
+<input type="text" name="0aMatrix2" maxlength="2" size="2">
+<input type="text" name="0aMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="0aMatrix4" maxlength="2" size="2">
+<input type="text" name="0aMatrix5" maxlength="2" size="2">
+<input type="text" name="0aMatrix6" maxlength="2" size="2">
+<input type="text" name="0aMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="0aMatrix8" maxlength="2" size="2">
+<input type="text" name="0aMatrix9" maxlength="2" size="2">
+<input type="text" name="0aMatrix10" maxlength="2" size="2">
+<input type="text" name="0aMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="0aMatrix12" maxlength="2" size="2">
+<input type="text" name="0aMatrix13" maxlength="2" size="2">
+<input type="text" name="0aMatrix14" maxlength="2" size="2">
+<input type="text" name="0aMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
+<tr>
+<td><strong>Round 1</strong><br />
+<button onclick="subBytes(0)">Perform SubBytes Step</button>
+</td>
+<td>
+<input type="text" name="0sMatrix0" maxlength="2" size="2">
+<input type="text" name="0sMatrix1" maxlength="2" size="2">
+<input type="text" name="0sMatrix2" maxlength="2" size="2">
+<input type="text" name="0sMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="0sMatrix4" maxlength="2" size="2">
+<input type="text" name="0sMatrix5" maxlength="2" size="2">
+<input type="text" name="0sMatrix6" maxlength="2" size="2">
+<input type="text" name="0sMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="0sMatrix8" maxlength="2" size="2">
+<input type="text" name="0sMatrix9" maxlength="2" size="2">
+<input type="text" name="0sMatrix10" maxlength="2" size="2">
+<input type="text" name="0sMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="0sMatrix12" maxlength="2" size="2">
+<input type="text" name="0sMatrix13" maxlength="2" size="2">
+<input type="text" name="0sMatrix14" maxlength="2" size="2">
+<input type="text" name="0sMatrix15" maxlength="2" size="2"><br />
 <br />
-<input type="text" name="shMatrix0" maxlength="2" size="2">
-<input type="text" name="shMatrix1" maxlength="2" size="2">
-<input type="text" name="shMatrix2" maxlength="2" size="2">
-<input type="text" name="shMatrix3" maxlength="2" size="2"><br />
-<input type="text" name="shMatrix4" maxlength="2" size="2">
-<input type="text" name="shMatrix5" maxlength="2" size="2">
-<input type="text" name="shMatrix6" maxlength="2" size="2">
-<input type="text" name="shMatrix7" maxlength="2" size="2"><br />
-<input type="text" name="shMatrix8" maxlength="2" size="2">
-<input type="text" name="shMatrix9" maxlength="2" size="2">
-<input type="text" name="shMatrix10" maxlength="2" size="2">
-<input type="text" name="shMatrix11" maxlength="2" size="2"><br />
-<input type="text" name="shMatrix12" maxlength="2" size="2">
-<input type="text" name="shMatrix13" maxlength="2" size="2">
-<input type="text" name="shMatrix14" maxlength="2" size="2">
-<input type="text" name="shMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="shiftRows(0)">Perform ShiftRows Step</button>
+</td>
+<td>
+<input type="text" name="0shMatrix0" maxlength="2" size="2">
+<input type="text" name="0shMatrix1" maxlength="2" size="2">
+<input type="text" name="0shMatrix2" maxlength="2" size="2">
+<input type="text" name="0shMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="0shMatrix4" maxlength="2" size="2">
+<input type="text" name="0shMatrix5" maxlength="2" size="2">
+<input type="text" name="0shMatrix6" maxlength="2" size="2">
+<input type="text" name="0shMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="0shMatrix8" maxlength="2" size="2">
+<input type="text" name="0shMatrix9" maxlength="2" size="2">
+<input type="text" name="0shMatrix10" maxlength="2" size="2">
+<input type="text" name="0shMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="0shMatrix12" maxlength="2" size="2">
+<input type="text" name="0shMatrix13" maxlength="2" size="2">
+<input type="text" name="0shMatrix14" maxlength="2" size="2">
+<input type="text" name="0shMatrix15" maxlength="2" size="2"><br />
 <br />
-<input type="text" name="aMatrix0" maxlength="2" size="2">
-<input type="text" name="aMatrix1" maxlength="2" size="2">
-<input type="text" name="aMatrix2" maxlength="2" size="2">
-<input type="text" name="aMatrix3" maxlength="2" size="2"><br />
-<input type="text" name="aMatrix4" maxlength="2" size="2">
-<input type="text" name="aMatrix5" maxlength="2" size="2">
-<input type="text" name="aMatrix6" maxlength="2" size="2">
-<input type="text" name="aMatrix7" maxlength="2" size="2"><br />
-<input type="text" name="aMatrix8" maxlength="2" size="2">
-<input type="text" name="aMatrix9" maxlength="2" size="2">
-<input type="text" name="aMatrix10" maxlength="2" size="2">
-<input type="text" name="aMatrix11" maxlength="2" size="2"><br />
-<input type="text" name="aMatrix12" maxlength="2" size="2">
-<input type="text" name="aMatrix13" maxlength="2" size="2">
-<input type="text" name="aMatrix14" maxlength="2" size="2">
-<input type="text" name="aMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="mixColumns(0)">Perform MixColumns Step</button>
+</td>
+<td>
+<input type="text" name="0mcMatrix0" maxlength="2" size="2">
+<input type="text" name="0mcMatrix1" maxlength="2" size="2">
+<input type="text" name="0mcMatrix2" maxlength="2" size="2">
+<input type="text" name="0mcMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="0mcMatrix4" maxlength="2" size="2">
+<input type="text" name="0mcMatrix5" maxlength="2" size="2">
+<input type="text" name="0mcMatrix6" maxlength="2" size="2">
+<input type="text" name="0mcMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="0mcMatrix8" maxlength="2" size="2">
+<input type="text" name="0mcMatrix9" maxlength="2" size="2">
+<input type="text" name="0mcMatrix10" maxlength="2" size="2">
+<input type="text" name="0mcMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="0mcMatrix12" maxlength="2" size="2">
+<input type="text" name="0mcMatrix13" maxlength="2" size="2">
+<input type="text" name="0mcMatrix14" maxlength="2" size="2">
+<input type="text" name="0mcMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="addRoundKey(1)">Perform AddRoundKey Step</button>
+<br />
+<input type="text" name="1kMatrix0" maxlength="2" size="2">
+<input type="text" name="1kMatrix1" maxlength="2" size="2">
+<input type="text" name="1kMatrix2" maxlength="2" size="2">
+<input type="text" name="1kMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="1kMatrix4" maxlength="2" size="2">
+<input type="text" name="1kMatrix5" maxlength="2" size="2">
+<input type="text" name="1kMatrix6" maxlength="2" size="2">
+<input type="text" name="1kMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="1kMatrix8" maxlength="2" size="2">
+<input type="text" name="1kMatrix9" maxlength="2" size="2">
+<input type="text" name="1kMatrix10" maxlength="2" size="2">
+<input type="text" name="1kMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="1kMatrix12" maxlength="2" size="2">
+<input type="text" name="1kMatrix13" maxlength="2" size="2">
+<input type="text" name="1kMatrix14" maxlength="2" size="2">
+<input type="text" name="1kMatrix15" maxlength="2" size="2"><br />
 
+</td>
+<td>
+<input type="text" name="1aMatrix0" maxlength="2" size="2">
+<input type="text" name="1aMatrix1" maxlength="2" size="2">
+<input type="text" name="1aMatrix2" maxlength="2" size="2">
+<input type="text" name="1aMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="1aMatrix4" maxlength="2" size="2">
+<input type="text" name="1aMatrix5" maxlength="2" size="2">
+<input type="text" name="1aMatrix6" maxlength="2" size="2">
+<input type="text" name="1aMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="1aMatrix8" maxlength="2" size="2">
+<input type="text" name="1aMatrix9" maxlength="2" size="2">
+<input type="text" name="1aMatrix10" maxlength="2" size="2">
+<input type="text" name="1aMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="1aMatrix12" maxlength="2" size="2">
+<input type="text" name="1aMatrix13" maxlength="2" size="2">
+<input type="text" name="1aMatrix14" maxlength="2" size="2">
+<input type="text" name="1aMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
 
+<tr>
+<td><strong>Round 2</strong><br />
+<button onclick="subBytes(1)">Perform SubBytes Step</button>
+</td>
+<td>
+<input type="text" name="1sMatrix0" maxlength="2" size="2">
+<input type="text" name="1sMatrix1" maxlength="2" size="2">
+<input type="text" name="1sMatrix2" maxlength="2" size="2">
+<input type="text" name="1sMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="1sMatrix4" maxlength="2" size="2">
+<input type="text" name="1sMatrix5" maxlength="2" size="2">
+<input type="text" name="1sMatrix6" maxlength="2" size="2">
+<input type="text" name="1sMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="1sMatrix8" maxlength="2" size="2">
+<input type="text" name="1sMatrix9" maxlength="2" size="2">
+<input type="text" name="1sMatrix10" maxlength="2" size="2">
+<input type="text" name="1sMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="1sMatrix12" maxlength="2" size="2">
+<input type="text" name="1sMatrix13" maxlength="2" size="2">
+<input type="text" name="1sMatrix14" maxlength="2" size="2">
+<input type="text" name="1sMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="shiftRows(1)">Perform ShiftRows Step</button>
+</td>
+<td>
+<input type="text" name="1shMatrix0" maxlength="2" size="2">
+<input type="text" name="1shMatrix1" maxlength="2" size="2">
+<input type="text" name="1shMatrix2" maxlength="2" size="2">
+<input type="text" name="1shMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="1shMatrix4" maxlength="2" size="2">
+<input type="text" name="1shMatrix5" maxlength="2" size="2">
+<input type="text" name="1shMatrix6" maxlength="2" size="2">
+<input type="text" name="1shMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="1shMatrix8" maxlength="2" size="2">
+<input type="text" name="1shMatrix9" maxlength="2" size="2">
+<input type="text" name="1shMatrix10" maxlength="2" size="2">
+<input type="text" name="1shMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="1shMatrix12" maxlength="2" size="2">
+<input type="text" name="1shMatrix13" maxlength="2" size="2">
+<input type="text" name="1shMatrix14" maxlength="2" size="2">
+<input type="text" name="1shMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="mixColumns(1)">Perform MixColumns Step</button>
+</td>
+<td>
+<input type="text" name="1mcMatrix0" maxlength="2" size="2">
+<input type="text" name="1mcMatrix1" maxlength="2" size="2">
+<input type="text" name="1mcMatrix2" maxlength="2" size="2">
+<input type="text" name="1mcMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="1mcMatrix4" maxlength="2" size="2">
+<input type="text" name="1mcMatrix5" maxlength="2" size="2">
+<input type="text" name="1mcMatrix6" maxlength="2" size="2">
+<input type="text" name="1mcMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="1mcMatrix8" maxlength="2" size="2">
+<input type="text" name="1mcMatrix9" maxlength="2" size="2">
+<input type="text" name="1mcMatrix10" maxlength="2" size="2">
+<input type="text" name="1mcMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="1mcMatrix12" maxlength="2" size="2">
+<input type="text" name="1mcMatrix13" maxlength="2" size="2">
+<input type="text" name="1mcMatrix14" maxlength="2" size="2">
+<input type="text" name="1mcMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="addRoundKey(2)">Perform AddRoundKey Step</button>
+<br />
+<input type="text" name="2kMatrix0" maxlength="2" size="2">
+<input type="text" name="2kMatrix1" maxlength="2" size="2">
+<input type="text" name="2kMatrix2" maxlength="2" size="2">
+<input type="text" name="2kMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="2kMatrix4" maxlength="2" size="2">
+<input type="text" name="2kMatrix5" maxlength="2" size="2">
+<input type="text" name="2kMatrix6" maxlength="2" size="2">
+<input type="text" name="2kMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="2kMatrix8" maxlength="2" size="2">
+<input type="text" name="2kMatrix9" maxlength="2" size="2">
+<input type="text" name="2kMatrix10" maxlength="2" size="2">
+<input type="text" name="2kMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="2kMatrix12" maxlength="2" size="2">
+<input type="text" name="2kMatrix13" maxlength="2" size="2">
+<input type="text" name="2kMatrix14" maxlength="2" size="2">
+<input type="text" name="2kMatrix15" maxlength="2" size="2"><br />
 
-<p>binary:
-<input type="text" name="bByte0" maxlength="8" size="8">
-<input type="text" name="bByte1" maxlength="8" size="8">
-<input type="text" name="bByte2" maxlength="8" size="8">
-<input type="text" name="bByte3" maxlength="8" size="8">
-<input type="text" name="bByte4" maxlength="8" size="8">
-<input type="text" name="bByte5" maxlength="8" size="8">
-<input type="text" name="bByte6" maxlength="8" size="8">
-<input type="text" name="bByte7" maxlength="8" size="8">
-<input type="text" name="bByte8" maxlength="8" size="8">
-<input type="text" name="bByte9" maxlength="8" size="8">
-<input type="text" name="bByte10" maxlength="8" size="8">
-<input type="text" name="bByte11" maxlength="8" size="8">
-<input type="text" name="bByte12" maxlength="8" size="8">
-<input type="text" name="bByte13" maxlength="8" size="8">
-<input type="text" name="bByte14" maxlength="8" size="8">
-<input type="text" name="bByte15" maxlength="8" size="8">
-</p>
+</td>
+<td>
+<input type="text" name="2aMatrix0" maxlength="2" size="2">
+<input type="text" name="2aMatrix1" maxlength="2" size="2">
+<input type="text" name="2aMatrix2" maxlength="2" size="2">
+<input type="text" name="2aMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="2aMatrix4" maxlength="2" size="2">
+<input type="text" name="2aMatrix5" maxlength="2" size="2">
+<input type="text" name="2aMatrix6" maxlength="2" size="2">
+<input type="text" name="2aMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="2aMatrix8" maxlength="2" size="2">
+<input type="text" name="2aMatrix9" maxlength="2" size="2">
+<input type="text" name="2aMatrix10" maxlength="2" size="2">
+<input type="text" name="2aMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="2aMatrix12" maxlength="2" size="2">
+<input type="text" name="2aMatrix13" maxlength="2" size="2">
+<input type="text" name="2aMatrix14" maxlength="2" size="2">
+<input type="text" name="2aMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
 
-Useful reference links:
+<tr>
+<td><strong>Round 3</strong><br />
+<button onclick="subBytes(2)">Perform SubBytes Step</button>
+</td>
+<td>
+<input type="text" name="2sMatrix0" maxlength="2" size="2">
+<input type="text" name="2sMatrix1" maxlength="2" size="2">
+<input type="text" name="2sMatrix2" maxlength="2" size="2">
+<input type="text" name="2sMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="2sMatrix4" maxlength="2" size="2">
+<input type="text" name="2sMatrix5" maxlength="2" size="2">
+<input type="text" name="2sMatrix6" maxlength="2" size="2">
+<input type="text" name="2sMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="2sMatrix8" maxlength="2" size="2">
+<input type="text" name="2sMatrix9" maxlength="2" size="2">
+<input type="text" name="2sMatrix10" maxlength="2" size="2">
+<input type="text" name="2sMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="2sMatrix12" maxlength="2" size="2">
+<input type="text" name="2sMatrix13" maxlength="2" size="2">
+<input type="text" name="2sMatrix14" maxlength="2" size="2">
+<input type="text" name="2sMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="shiftRows(2)">Perform ShiftRows Step</button>
+</td>
+<td>
+<input type="text" name="2shMatrix0" maxlength="2" size="2">
+<input type="text" name="2shMatrix1" maxlength="2" size="2">
+<input type="text" name="2shMatrix2" maxlength="2" size="2">
+<input type="text" name="2shMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="2shMatrix4" maxlength="2" size="2">
+<input type="text" name="2shMatrix5" maxlength="2" size="2">
+<input type="text" name="2shMatrix6" maxlength="2" size="2">
+<input type="text" name="2shMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="2shMatrix8" maxlength="2" size="2">
+<input type="text" name="2shMatrix9" maxlength="2" size="2">
+<input type="text" name="2shMatrix10" maxlength="2" size="2">
+<input type="text" name="2shMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="2shMatrix12" maxlength="2" size="2">
+<input type="text" name="2shMatrix13" maxlength="2" size="2">
+<input type="text" name="2shMatrix14" maxlength="2" size="2">
+<input type="text" name="2shMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="mixColumns(2)">Perform MixColumns Step</button>
+</td>
+<td>
+<input type="text" name="2mcMatrix0" maxlength="2" size="2">
+<input type="text" name="2mcMatrix1" maxlength="2" size="2">
+<input type="text" name="2mcMatrix2" maxlength="2" size="2">
+<input type="text" name="2mcMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="2mcMatrix4" maxlength="2" size="2">
+<input type="text" name="2mcMatrix5" maxlength="2" size="2">
+<input type="text" name="2mcMatrix6" maxlength="2" size="2">
+<input type="text" name="2mcMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="2mcMatrix8" maxlength="2" size="2">
+<input type="text" name="2mcMatrix9" maxlength="2" size="2">
+<input type="text" name="2mcMatrix10" maxlength="2" size="2">
+<input type="text" name="2mcMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="2mcMatrix12" maxlength="2" size="2">
+<input type="text" name="2mcMatrix13" maxlength="2" size="2">
+<input type="text" name="2mcMatrix14" maxlength="2" size="2">
+<input type="text" name="2mcMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="addRoundKey(3)">Perform AddRoundKey Step</button>
+<br />
+<input type="text" name="3kMatrix0" maxlength="2" size="2">
+<input type="text" name="3kMatrix1" maxlength="2" size="2">
+<input type="text" name="3kMatrix2" maxlength="2" size="2">
+<input type="text" name="3kMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="3kMatrix4" maxlength="2" size="2">
+<input type="text" name="3kMatrix5" maxlength="2" size="2">
+<input type="text" name="3kMatrix6" maxlength="2" size="2">
+<input type="text" name="3kMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="3kMatrix8" maxlength="2" size="2">
+<input type="text" name="3kMatrix9" maxlength="2" size="2">
+<input type="text" name="3kMatrix10" maxlength="2" size="2">
+<input type="text" name="3kMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="3kMatrix12" maxlength="2" size="2">
+<input type="text" name="3kMatrix13" maxlength="2" size="2">
+<input type="text" name="3kMatrix14" maxlength="2" size="2">
+<input type="text" name="3kMatrix15" maxlength="2" size="2"><br />
+
+</td>
+<td>
+<input type="text" name="3aMatrix0" maxlength="2" size="2">
+<input type="text" name="3aMatrix1" maxlength="2" size="2">
+<input type="text" name="3aMatrix2" maxlength="2" size="2">
+<input type="text" name="3aMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="3aMatrix4" maxlength="2" size="2">
+<input type="text" name="3aMatrix5" maxlength="2" size="2">
+<input type="text" name="3aMatrix6" maxlength="2" size="2">
+<input type="text" name="3aMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="3aMatrix8" maxlength="2" size="2">
+<input type="text" name="3aMatrix9" maxlength="2" size="2">
+<input type="text" name="3aMatrix10" maxlength="2" size="2">
+<input type="text" name="3aMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="3aMatrix12" maxlength="2" size="2">
+<input type="text" name="3aMatrix13" maxlength="2" size="2">
+<input type="text" name="3aMatrix14" maxlength="2" size="2">
+<input type="text" name="3aMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
+
+<tr>
+<td><strong>Round 4</strong><br />
+<button onclick="subBytes(3)">Perform SubBytes Step</button>
+</td>
+<td>
+<input type="text" name="3sMatrix0" maxlength="2" size="2">
+<input type="text" name="3sMatrix1" maxlength="2" size="2">
+<input type="text" name="3sMatrix2" maxlength="2" size="2">
+<input type="text" name="3sMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="3sMatrix4" maxlength="2" size="2">
+<input type="text" name="3sMatrix5" maxlength="2" size="2">
+<input type="text" name="3sMatrix6" maxlength="2" size="2">
+<input type="text" name="3sMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="3sMatrix8" maxlength="2" size="2">
+<input type="text" name="3sMatrix9" maxlength="2" size="2">
+<input type="text" name="3sMatrix10" maxlength="2" size="2">
+<input type="text" name="3sMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="3sMatrix12" maxlength="2" size="2">
+<input type="text" name="3sMatrix13" maxlength="2" size="2">
+<input type="text" name="3sMatrix14" maxlength="2" size="2">
+<input type="text" name="3sMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="shiftRows(3)">Perform ShiftRows Step</button>
+</td>
+<td>
+<input type="text" name="3shMatrix0" maxlength="2" size="2">
+<input type="text" name="3shMatrix1" maxlength="2" size="2">
+<input type="text" name="3shMatrix2" maxlength="2" size="2">
+<input type="text" name="3shMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="3shMatrix4" maxlength="2" size="2">
+<input type="text" name="3shMatrix5" maxlength="2" size="2">
+<input type="text" name="3shMatrix6" maxlength="2" size="2">
+<input type="text" name="3shMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="3shMatrix8" maxlength="2" size="2">
+<input type="text" name="3shMatrix9" maxlength="2" size="2">
+<input type="text" name="3shMatrix10" maxlength="2" size="2">
+<input type="text" name="3shMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="3shMatrix12" maxlength="2" size="2">
+<input type="text" name="3shMatrix13" maxlength="2" size="2">
+<input type="text" name="3shMatrix14" maxlength="2" size="2">
+<input type="text" name="3shMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="mixColumns(3)">Perform MixColumns Step</button>
+</td>
+<td>
+<input type="text" name="3mcMatrix0" maxlength="2" size="2">
+<input type="text" name="3mcMatrix1" maxlength="2" size="2">
+<input type="text" name="3mcMatrix2" maxlength="2" size="2">
+<input type="text" name="3mcMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="3mcMatrix4" maxlength="2" size="2">
+<input type="text" name="3mcMatrix5" maxlength="2" size="2">
+<input type="text" name="3mcMatrix6" maxlength="2" size="2">
+<input type="text" name="3mcMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="3mcMatrix8" maxlength="2" size="2">
+<input type="text" name="3mcMatrix9" maxlength="2" size="2">
+<input type="text" name="3mcMatrix10" maxlength="2" size="2">
+<input type="text" name="3mcMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="3mcMatrix12" maxlength="2" size="2">
+<input type="text" name="3mcMatrix13" maxlength="2" size="2">
+<input type="text" name="3mcMatrix14" maxlength="2" size="2">
+<input type="text" name="3mcMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="addRoundKey(4)">Perform AddRoundKey Step</button>
+<br />
+<input type="text" name="4kMatrix0" maxlength="2" size="2">
+<input type="text" name="4kMatrix1" maxlength="2" size="2">
+<input type="text" name="4kMatrix2" maxlength="2" size="2">
+<input type="text" name="4kMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="4kMatrix4" maxlength="2" size="2">
+<input type="text" name="4kMatrix5" maxlength="2" size="2">
+<input type="text" name="4kMatrix6" maxlength="2" size="2">
+<input type="text" name="4kMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="4kMatrix8" maxlength="2" size="2">
+<input type="text" name="4kMatrix9" maxlength="2" size="2">
+<input type="text" name="4kMatrix10" maxlength="2" size="2">
+<input type="text" name="4kMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="4kMatrix12" maxlength="2" size="2">
+<input type="text" name="4kMatrix13" maxlength="2" size="2">
+<input type="text" name="4kMatrix14" maxlength="2" size="2">
+<input type="text" name="4kMatrix15" maxlength="2" size="2"><br />
+
+</td>
+<td>
+<input type="text" name="4aMatrix0" maxlength="2" size="2">
+<input type="text" name="4aMatrix1" maxlength="2" size="2">
+<input type="text" name="4aMatrix2" maxlength="2" size="2">
+<input type="text" name="4aMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="4aMatrix4" maxlength="2" size="2">
+<input type="text" name="4aMatrix5" maxlength="2" size="2">
+<input type="text" name="4aMatrix6" maxlength="2" size="2">
+<input type="text" name="4aMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="4aMatrix8" maxlength="2" size="2">
+<input type="text" name="4aMatrix9" maxlength="2" size="2">
+<input type="text" name="4aMatrix10" maxlength="2" size="2">
+<input type="text" name="4aMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="4aMatrix12" maxlength="2" size="2">
+<input type="text" name="4aMatrix13" maxlength="2" size="2">
+<input type="text" name="4aMatrix14" maxlength="2" size="2">
+<input type="text" name="4aMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
+
+<tr>
+<td><strong>Round 5</strong><br />
+<button onclick="subBytes(4)">Perform SubBytes Step</button>
+</td>
+<td>
+<input type="text" name="4sMatrix0" maxlength="2" size="2">
+<input type="text" name="4sMatrix1" maxlength="2" size="2">
+<input type="text" name="4sMatrix2" maxlength="2" size="2">
+<input type="text" name="4sMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="4sMatrix4" maxlength="2" size="2">
+<input type="text" name="4sMatrix5" maxlength="2" size="2">
+<input type="text" name="4sMatrix6" maxlength="2" size="2">
+<input type="text" name="4sMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="4sMatrix8" maxlength="2" size="2">
+<input type="text" name="4sMatrix9" maxlength="2" size="2">
+<input type="text" name="4sMatrix10" maxlength="2" size="2">
+<input type="text" name="4sMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="4sMatrix12" maxlength="2" size="2">
+<input type="text" name="4sMatrix13" maxlength="2" size="2">
+<input type="text" name="4sMatrix14" maxlength="2" size="2">
+<input type="text" name="4sMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="shiftRows(4)">Perform ShiftRows Step</button>
+</td>
+<td>
+<input type="text" name="4shMatrix0" maxlength="2" size="2">
+<input type="text" name="4shMatrix1" maxlength="2" size="2">
+<input type="text" name="4shMatrix2" maxlength="2" size="2">
+<input type="text" name="4shMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="4shMatrix4" maxlength="2" size="2">
+<input type="text" name="4shMatrix5" maxlength="2" size="2">
+<input type="text" name="4shMatrix6" maxlength="2" size="2">
+<input type="text" name="4shMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="4shMatrix8" maxlength="2" size="2">
+<input type="text" name="4shMatrix9" maxlength="2" size="2">
+<input type="text" name="4shMatrix10" maxlength="2" size="2">
+<input type="text" name="4shMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="4shMatrix12" maxlength="2" size="2">
+<input type="text" name="4shMatrix13" maxlength="2" size="2">
+<input type="text" name="4shMatrix14" maxlength="2" size="2">
+<input type="text" name="4shMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="mixColumns(4)">Perform MixColumns Step</button>
+</td>
+<td>
+<input type="text" name="4mcMatrix0" maxlength="2" size="2">
+<input type="text" name="4mcMatrix1" maxlength="2" size="2">
+<input type="text" name="4mcMatrix2" maxlength="2" size="2">
+<input type="text" name="4mcMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="4mcMatrix4" maxlength="2" size="2">
+<input type="text" name="4mcMatrix5" maxlength="2" size="2">
+<input type="text" name="4mcMatrix6" maxlength="2" size="2">
+<input type="text" name="4mcMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="4mcMatrix8" maxlength="2" size="2">
+<input type="text" name="4mcMatrix9" maxlength="2" size="2">
+<input type="text" name="4mcMatrix10" maxlength="2" size="2">
+<input type="text" name="4mcMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="4mcMatrix12" maxlength="2" size="2">
+<input type="text" name="4mcMatrix13" maxlength="2" size="2">
+<input type="text" name="4mcMatrix14" maxlength="2" size="2">
+<input type="text" name="4mcMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="addRoundKey(5)">Perform AddRoundKey Step</button>
+<br />
+<input type="text" name="5kMatrix0" maxlength="2" size="2">
+<input type="text" name="5kMatrix1" maxlength="2" size="2">
+<input type="text" name="5kMatrix2" maxlength="2" size="2">
+<input type="text" name="5kMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="5kMatrix4" maxlength="2" size="2">
+<input type="text" name="5kMatrix5" maxlength="2" size="2">
+<input type="text" name="5kMatrix6" maxlength="2" size="2">
+<input type="text" name="5kMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="5kMatrix8" maxlength="2" size="2">
+<input type="text" name="5kMatrix9" maxlength="2" size="2">
+<input type="text" name="5kMatrix10" maxlength="2" size="2">
+<input type="text" name="5kMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="5kMatrix12" maxlength="2" size="2">
+<input type="text" name="5kMatrix13" maxlength="2" size="2">
+<input type="text" name="5kMatrix14" maxlength="2" size="2">
+<input type="text" name="5kMatrix15" maxlength="2" size="2"><br />
+
+</td>
+<td>
+<input type="text" name="5aMatrix0" maxlength="2" size="2">
+<input type="text" name="5aMatrix1" maxlength="2" size="2">
+<input type="text" name="5aMatrix2" maxlength="2" size="2">
+<input type="text" name="5aMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="5aMatrix4" maxlength="2" size="2">
+<input type="text" name="5aMatrix5" maxlength="2" size="2">
+<input type="text" name="5aMatrix6" maxlength="2" size="2">
+<input type="text" name="5aMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="5aMatrix8" maxlength="2" size="2">
+<input type="text" name="5aMatrix9" maxlength="2" size="2">
+<input type="text" name="5aMatrix10" maxlength="2" size="2">
+<input type="text" name="5aMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="5aMatrix12" maxlength="2" size="2">
+<input type="text" name="5aMatrix13" maxlength="2" size="2">
+<input type="text" name="5aMatrix14" maxlength="2" size="2">
+<input type="text" name="5aMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
+
+<tr>
+<td><strong>Round 6</strong><br />
+<button onclick="subBytes(5)">Perform SubBytes Step</button>
+</td>
+<td>
+<input type="text" name="5sMatrix0" maxlength="2" size="2">
+<input type="text" name="5sMatrix1" maxlength="2" size="2">
+<input type="text" name="5sMatrix2" maxlength="2" size="2">
+<input type="text" name="5sMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="5sMatrix4" maxlength="2" size="2">
+<input type="text" name="5sMatrix5" maxlength="2" size="2">
+<input type="text" name="5sMatrix6" maxlength="2" size="2">
+<input type="text" name="5sMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="5sMatrix8" maxlength="2" size="2">
+<input type="text" name="5sMatrix9" maxlength="2" size="2">
+<input type="text" name="5sMatrix10" maxlength="2" size="2">
+<input type="text" name="5sMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="5sMatrix12" maxlength="2" size="2">
+<input type="text" name="5sMatrix13" maxlength="2" size="2">
+<input type="text" name="5sMatrix14" maxlength="2" size="2">
+<input type="text" name="5sMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="shiftRows(5)">Perform ShiftRows Step</button>
+</td>
+<td>
+<input type="text" name="5shMatrix0" maxlength="2" size="2">
+<input type="text" name="5shMatrix1" maxlength="2" size="2">
+<input type="text" name="5shMatrix2" maxlength="2" size="2">
+<input type="text" name="5shMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="5shMatrix4" maxlength="2" size="2">
+<input type="text" name="5shMatrix5" maxlength="2" size="2">
+<input type="text" name="5shMatrix6" maxlength="2" size="2">
+<input type="text" name="5shMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="5shMatrix8" maxlength="2" size="2">
+<input type="text" name="5shMatrix9" maxlength="2" size="2">
+<input type="text" name="5shMatrix10" maxlength="2" size="2">
+<input type="text" name="5shMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="5shMatrix12" maxlength="2" size="2">
+<input type="text" name="5shMatrix13" maxlength="2" size="2">
+<input type="text" name="5shMatrix14" maxlength="2" size="2">
+<input type="text" name="5shMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="mixColumns(5)">Perform MixColumns Step</button>
+</td>
+<td>
+<input type="text" name="5mcMatrix0" maxlength="2" size="2">
+<input type="text" name="5mcMatrix1" maxlength="2" size="2">
+<input type="text" name="5mcMatrix2" maxlength="2" size="2">
+<input type="text" name="5mcMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="5mcMatrix4" maxlength="2" size="2">
+<input type="text" name="5mcMatrix5" maxlength="2" size="2">
+<input type="text" name="5mcMatrix6" maxlength="2" size="2">
+<input type="text" name="5mcMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="5mcMatrix8" maxlength="2" size="2">
+<input type="text" name="5mcMatrix9" maxlength="2" size="2">
+<input type="text" name="5mcMatrix10" maxlength="2" size="2">
+<input type="text" name="5mcMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="5mcMatrix12" maxlength="2" size="2">
+<input type="text" name="5mcMatrix13" maxlength="2" size="2">
+<input type="text" name="5mcMatrix14" maxlength="2" size="2">
+<input type="text" name="5mcMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="addRoundKey(6)">Perform AddRoundKey Step</button>
+<br />
+<input type="text" name="6kMatrix0" maxlength="2" size="2">
+<input type="text" name="6kMatrix1" maxlength="2" size="2">
+<input type="text" name="6kMatrix2" maxlength="2" size="2">
+<input type="text" name="6kMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="6kMatrix4" maxlength="2" size="2">
+<input type="text" name="6kMatrix5" maxlength="2" size="2">
+<input type="text" name="6kMatrix6" maxlength="2" size="2">
+<input type="text" name="6kMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="6kMatrix8" maxlength="2" size="2">
+<input type="text" name="6kMatrix9" maxlength="2" size="2">
+<input type="text" name="6kMatrix10" maxlength="2" size="2">
+<input type="text" name="6kMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="6kMatrix12" maxlength="2" size="2">
+<input type="text" name="6kMatrix13" maxlength="2" size="2">
+<input type="text" name="6kMatrix14" maxlength="2" size="2">
+<input type="text" name="6kMatrix15" maxlength="2" size="2"><br />
+
+</td>
+<td>
+<input type="text" name="6aMatrix0" maxlength="2" size="2">
+<input type="text" name="6aMatrix1" maxlength="2" size="2">
+<input type="text" name="6aMatrix2" maxlength="2" size="2">
+<input type="text" name="6aMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="6aMatrix4" maxlength="2" size="2">
+<input type="text" name="6aMatrix5" maxlength="2" size="2">
+<input type="text" name="6aMatrix6" maxlength="2" size="2">
+<input type="text" name="6aMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="6aMatrix8" maxlength="2" size="2">
+<input type="text" name="6aMatrix9" maxlength="2" size="2">
+<input type="text" name="6aMatrix10" maxlength="2" size="2">
+<input type="text" name="6aMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="6aMatrix12" maxlength="2" size="2">
+<input type="text" name="6aMatrix13" maxlength="2" size="2">
+<input type="text" name="6aMatrix14" maxlength="2" size="2">
+<input type="text" name="6aMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
+
+<tr>
+<td><strong>Round 7</strong><br />
+<button onclick="subBytes(6)">Perform SubBytes Step</button>
+</td>
+<td>
+<input type="text" name="6sMatrix0" maxlength="2" size="2">
+<input type="text" name="6sMatrix1" maxlength="2" size="2">
+<input type="text" name="6sMatrix2" maxlength="2" size="2">
+<input type="text" name="6sMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="6sMatrix4" maxlength="2" size="2">
+<input type="text" name="6sMatrix5" maxlength="2" size="2">
+<input type="text" name="6sMatrix6" maxlength="2" size="2">
+<input type="text" name="6sMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="6sMatrix8" maxlength="2" size="2">
+<input type="text" name="6sMatrix9" maxlength="2" size="2">
+<input type="text" name="6sMatrix10" maxlength="2" size="2">
+<input type="text" name="6sMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="6sMatrix12" maxlength="2" size="2">
+<input type="text" name="6sMatrix13" maxlength="2" size="2">
+<input type="text" name="6sMatrix14" maxlength="2" size="2">
+<input type="text" name="6sMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="shiftRows(6)">Perform ShiftRows Step</button>
+</td>
+<td>
+<input type="text" name="6shMatrix0" maxlength="2" size="2">
+<input type="text" name="6shMatrix1" maxlength="2" size="2">
+<input type="text" name="6shMatrix2" maxlength="2" size="2">
+<input type="text" name="6shMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="6shMatrix4" maxlength="2" size="2">
+<input type="text" name="6shMatrix5" maxlength="2" size="2">
+<input type="text" name="6shMatrix6" maxlength="2" size="2">
+<input type="text" name="6shMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="6shMatrix8" maxlength="2" size="2">
+<input type="text" name="6shMatrix9" maxlength="2" size="2">
+<input type="text" name="6shMatrix10" maxlength="2" size="2">
+<input type="text" name="6shMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="6shMatrix12" maxlength="2" size="2">
+<input type="text" name="6shMatrix13" maxlength="2" size="2">
+<input type="text" name="6shMatrix14" maxlength="2" size="2">
+<input type="text" name="6shMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="mixColumns(6)">Perform MixColumns Step</button>
+</td>
+<td>
+<input type="text" name="6mcMatrix0" maxlength="2" size="2">
+<input type="text" name="6mcMatrix1" maxlength="2" size="2">
+<input type="text" name="6mcMatrix2" maxlength="2" size="2">
+<input type="text" name="6mcMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="6mcMatrix4" maxlength="2" size="2">
+<input type="text" name="6mcMatrix5" maxlength="2" size="2">
+<input type="text" name="6mcMatrix6" maxlength="2" size="2">
+<input type="text" name="6mcMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="6mcMatrix8" maxlength="2" size="2">
+<input type="text" name="6mcMatrix9" maxlength="2" size="2">
+<input type="text" name="6mcMatrix10" maxlength="2" size="2">
+<input type="text" name="6mcMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="6mcMatrix12" maxlength="2" size="2">
+<input type="text" name="6mcMatrix13" maxlength="2" size="2">
+<input type="text" name="6mcMatrix14" maxlength="2" size="2">
+<input type="text" name="6mcMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="addRoundKey(7)">Perform AddRoundKey Step</button>
+<br />
+<input type="text" name="7kMatrix0" maxlength="2" size="2">
+<input type="text" name="7kMatrix1" maxlength="2" size="2">
+<input type="text" name="7kMatrix2" maxlength="2" size="2">
+<input type="text" name="7kMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="7kMatrix4" maxlength="2" size="2">
+<input type="text" name="7kMatrix5" maxlength="2" size="2">
+<input type="text" name="7kMatrix6" maxlength="2" size="2">
+<input type="text" name="7kMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="7kMatrix8" maxlength="2" size="2">
+<input type="text" name="7kMatrix9" maxlength="2" size="2">
+<input type="text" name="7kMatrix10" maxlength="2" size="2">
+<input type="text" name="7kMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="7kMatrix12" maxlength="2" size="2">
+<input type="text" name="7kMatrix13" maxlength="2" size="2">
+<input type="text" name="7kMatrix14" maxlength="2" size="2">
+<input type="text" name="7kMatrix15" maxlength="2" size="2"><br />
+
+</td>
+<td>
+<input type="text" name="7aMatrix0" maxlength="2" size="2">
+<input type="text" name="7aMatrix1" maxlength="2" size="2">
+<input type="text" name="7aMatrix2" maxlength="2" size="2">
+<input type="text" name="7aMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="7aMatrix4" maxlength="2" size="2">
+<input type="text" name="7aMatrix5" maxlength="2" size="2">
+<input type="text" name="7aMatrix6" maxlength="2" size="2">
+<input type="text" name="7aMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="7aMatrix8" maxlength="2" size="2">
+<input type="text" name="7aMatrix9" maxlength="2" size="2">
+<input type="text" name="7aMatrix10" maxlength="2" size="2">
+<input type="text" name="7aMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="7aMatrix12" maxlength="2" size="2">
+<input type="text" name="7aMatrix13" maxlength="2" size="2">
+<input type="text" name="7aMatrix14" maxlength="2" size="2">
+<input type="text" name="7aMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
+
+<tr>
+<td><strong>Round 8</strong><br />
+<button onclick="subBytes(7)">Perform SubBytes Step</button>
+</td>
+<td>
+<input type="text" name="7sMatrix0" maxlength="2" size="2">
+<input type="text" name="7sMatrix1" maxlength="2" size="2">
+<input type="text" name="7sMatrix2" maxlength="2" size="2">
+<input type="text" name="7sMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="7sMatrix4" maxlength="2" size="2">
+<input type="text" name="7sMatrix5" maxlength="2" size="2">
+<input type="text" name="7sMatrix6" maxlength="2" size="2">
+<input type="text" name="7sMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="7sMatrix8" maxlength="2" size="2">
+<input type="text" name="7sMatrix9" maxlength="2" size="2">
+<input type="text" name="7sMatrix10" maxlength="2" size="2">
+<input type="text" name="7sMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="7sMatrix12" maxlength="2" size="2">
+<input type="text" name="7sMatrix13" maxlength="2" size="2">
+<input type="text" name="7sMatrix14" maxlength="2" size="2">
+<input type="text" name="7sMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="shiftRows(7)">Perform ShiftRows Step</button>
+</td>
+<td>
+<input type="text" name="7shMatrix0" maxlength="2" size="2">
+<input type="text" name="7shMatrix1" maxlength="2" size="2">
+<input type="text" name="7shMatrix2" maxlength="2" size="2">
+<input type="text" name="7shMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="7shMatrix4" maxlength="2" size="2">
+<input type="text" name="7shMatrix5" maxlength="2" size="2">
+<input type="text" name="7shMatrix6" maxlength="2" size="2">
+<input type="text" name="7shMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="7shMatrix8" maxlength="2" size="2">
+<input type="text" name="7shMatrix9" maxlength="2" size="2">
+<input type="text" name="7shMatrix10" maxlength="2" size="2">
+<input type="text" name="7shMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="7shMatrix12" maxlength="2" size="2">
+<input type="text" name="7shMatrix13" maxlength="2" size="2">
+<input type="text" name="7shMatrix14" maxlength="2" size="2">
+<input type="text" name="7shMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="mixColumns(7)">Perform MixColumns Step</button>
+</td>
+<td>
+<input type="text" name="7mcMatrix0" maxlength="2" size="2">
+<input type="text" name="7mcMatrix1" maxlength="2" size="2">
+<input type="text" name="7mcMatrix2" maxlength="2" size="2">
+<input type="text" name="7mcMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="7mcMatrix4" maxlength="2" size="2">
+<input type="text" name="7mcMatrix5" maxlength="2" size="2">
+<input type="text" name="7mcMatrix6" maxlength="2" size="2">
+<input type="text" name="7mcMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="7mcMatrix8" maxlength="2" size="2">
+<input type="text" name="7mcMatrix9" maxlength="2" size="2">
+<input type="text" name="7mcMatrix10" maxlength="2" size="2">
+<input type="text" name="7mcMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="7mcMatrix12" maxlength="2" size="2">
+<input type="text" name="7mcMatrix13" maxlength="2" size="2">
+<input type="text" name="7mcMatrix14" maxlength="2" size="2">
+<input type="text" name="7mcMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="addRoundKey(8)">Perform AddRoundKey Step</button>
+<br />
+<input type="text" name="8kMatrix0" maxlength="2" size="2">
+<input type="text" name="8kMatrix1" maxlength="2" size="2">
+<input type="text" name="8kMatrix2" maxlength="2" size="2">
+<input type="text" name="8kMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="8kMatrix4" maxlength="2" size="2">
+<input type="text" name="8kMatrix5" maxlength="2" size="2">
+<input type="text" name="8kMatrix6" maxlength="2" size="2">
+<input type="text" name="8kMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="8kMatrix8" maxlength="2" size="2">
+<input type="text" name="8kMatrix9" maxlength="2" size="2">
+<input type="text" name="8kMatrix10" maxlength="2" size="2">
+<input type="text" name="8kMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="8kMatrix12" maxlength="2" size="2">
+<input type="text" name="8kMatrix13" maxlength="2" size="2">
+<input type="text" name="8kMatrix14" maxlength="2" size="2">
+<input type="text" name="8kMatrix15" maxlength="2" size="2"><br />
+
+</td>
+<td>
+<input type="text" name="8aMatrix0" maxlength="2" size="2">
+<input type="text" name="8aMatrix1" maxlength="2" size="2">
+<input type="text" name="8aMatrix2" maxlength="2" size="2">
+<input type="text" name="8aMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="8aMatrix4" maxlength="2" size="2">
+<input type="text" name="8aMatrix5" maxlength="2" size="2">
+<input type="text" name="8aMatrix6" maxlength="2" size="2">
+<input type="text" name="8aMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="8aMatrix8" maxlength="2" size="2">
+<input type="text" name="8aMatrix9" maxlength="2" size="2">
+<input type="text" name="8aMatrix10" maxlength="2" size="2">
+<input type="text" name="8aMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="8aMatrix12" maxlength="2" size="2">
+<input type="text" name="8aMatrix13" maxlength="2" size="2">
+<input type="text" name="8aMatrix14" maxlength="2" size="2">
+<input type="text" name="8aMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
+
+<tr>
+<td><strong>Round 9</strong><br />
+<button onclick="subBytes(8)">Perform SubBytes Step</button>
+</td>
+<td>
+<input type="text" name="8sMatrix0" maxlength="2" size="2">
+<input type="text" name="8sMatrix1" maxlength="2" size="2">
+<input type="text" name="8sMatrix2" maxlength="2" size="2">
+<input type="text" name="8sMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="8sMatrix4" maxlength="2" size="2">
+<input type="text" name="8sMatrix5" maxlength="2" size="2">
+<input type="text" name="8sMatrix6" maxlength="2" size="2">
+<input type="text" name="8sMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="8sMatrix8" maxlength="2" size="2">
+<input type="text" name="8sMatrix9" maxlength="2" size="2">
+<input type="text" name="8sMatrix10" maxlength="2" size="2">
+<input type="text" name="8sMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="8sMatrix12" maxlength="2" size="2">
+<input type="text" name="8sMatrix13" maxlength="2" size="2">
+<input type="text" name="8sMatrix14" maxlength="2" size="2">
+<input type="text" name="8sMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="shiftRows(8)">Perform ShiftRows Step</button>
+</td>
+<td>
+<input type="text" name="8shMatrix0" maxlength="2" size="2">
+<input type="text" name="8shMatrix1" maxlength="2" size="2">
+<input type="text" name="8shMatrix2" maxlength="2" size="2">
+<input type="text" name="8shMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="8shMatrix4" maxlength="2" size="2">
+<input type="text" name="8shMatrix5" maxlength="2" size="2">
+<input type="text" name="8shMatrix6" maxlength="2" size="2">
+<input type="text" name="8shMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="8shMatrix8" maxlength="2" size="2">
+<input type="text" name="8shMatrix9" maxlength="2" size="2">
+<input type="text" name="8shMatrix10" maxlength="2" size="2">
+<input type="text" name="8shMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="8shMatrix12" maxlength="2" size="2">
+<input type="text" name="8shMatrix13" maxlength="2" size="2">
+<input type="text" name="8shMatrix14" maxlength="2" size="2">
+<input type="text" name="8shMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="mixColumns(8)">Perform MixColumns Step</button>
+</td>
+<td>
+<input type="text" name="8mcMatrix0" maxlength="2" size="2">
+<input type="text" name="8mcMatrix1" maxlength="2" size="2">
+<input type="text" name="8mcMatrix2" maxlength="2" size="2">
+<input type="text" name="8mcMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="8mcMatrix4" maxlength="2" size="2">
+<input type="text" name="8mcMatrix5" maxlength="2" size="2">
+<input type="text" name="8mcMatrix6" maxlength="2" size="2">
+<input type="text" name="8mcMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="8mcMatrix8" maxlength="2" size="2">
+<input type="text" name="8mcMatrix9" maxlength="2" size="2">
+<input type="text" name="8mcMatrix10" maxlength="2" size="2">
+<input type="text" name="8mcMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="8mcMatrix12" maxlength="2" size="2">
+<input type="text" name="8mcMatrix13" maxlength="2" size="2">
+<input type="text" name="8mcMatrix14" maxlength="2" size="2">
+<input type="text" name="8mcMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="addRoundKey(9)">Perform AddRoundKey Step</button>
+<br />
+<input type="text" name="9kMatrix0" maxlength="2" size="2">
+<input type="text" name="9kMatrix1" maxlength="2" size="2">
+<input type="text" name="9kMatrix2" maxlength="2" size="2">
+<input type="text" name="9kMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="9kMatrix4" maxlength="2" size="2">
+<input type="text" name="9kMatrix5" maxlength="2" size="2">
+<input type="text" name="9kMatrix6" maxlength="2" size="2">
+<input type="text" name="9kMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="9kMatrix8" maxlength="2" size="2">
+<input type="text" name="9kMatrix9" maxlength="2" size="2">
+<input type="text" name="9kMatrix10" maxlength="2" size="2">
+<input type="text" name="9kMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="9kMatrix12" maxlength="2" size="2">
+<input type="text" name="9kMatrix13" maxlength="2" size="2">
+<input type="text" name="9kMatrix14" maxlength="2" size="2">
+<input type="text" name="9kMatrix15" maxlength="2" size="2"><br />
+
+</td>
+<td>
+<input type="text" name="9aMatrix0" maxlength="2" size="2">
+<input type="text" name="9aMatrix1" maxlength="2" size="2">
+<input type="text" name="9aMatrix2" maxlength="2" size="2">
+<input type="text" name="9aMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="9aMatrix4" maxlength="2" size="2">
+<input type="text" name="9aMatrix5" maxlength="2" size="2">
+<input type="text" name="9aMatrix6" maxlength="2" size="2">
+<input type="text" name="9aMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="9aMatrix8" maxlength="2" size="2">
+<input type="text" name="9aMatrix9" maxlength="2" size="2">
+<input type="text" name="9aMatrix10" maxlength="2" size="2">
+<input type="text" name="9aMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="9aMatrix12" maxlength="2" size="2">
+<input type="text" name="9aMatrix13" maxlength="2" size="2">
+<input type="text" name="9aMatrix14" maxlength="2" size="2">
+<input type="text" name="9aMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
+
+<tr>
+<td><strong>Round 10</strong><br />
+<button onclick="subBytes(9)">Perform SubBytes Step</button>
+</td>
+<td>
+<input type="text" name="9sMatrix0" maxlength="2" size="2">
+<input type="text" name="9sMatrix1" maxlength="2" size="2">
+<input type="text" name="9sMatrix2" maxlength="2" size="2">
+<input type="text" name="9sMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="9sMatrix4" maxlength="2" size="2">
+<input type="text" name="9sMatrix5" maxlength="2" size="2">
+<input type="text" name="9sMatrix6" maxlength="2" size="2">
+<input type="text" name="9sMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="9sMatrix8" maxlength="2" size="2">
+<input type="text" name="9sMatrix9" maxlength="2" size="2">
+<input type="text" name="9sMatrix10" maxlength="2" size="2">
+<input type="text" name="9sMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="9sMatrix12" maxlength="2" size="2">
+<input type="text" name="9sMatrix13" maxlength="2" size="2">
+<input type="text" name="9sMatrix14" maxlength="2" size="2">
+<input type="text" name="9sMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="shiftRows(9)">Perform ShiftRows Step</button>
+</td>
+<td>
+<input type="text" name="9shMatrix0" maxlength="2" size="2">
+<input type="text" name="9shMatrix1" maxlength="2" size="2">
+<input type="text" name="9shMatrix2" maxlength="2" size="2">
+<input type="text" name="9shMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="9shMatrix4" maxlength="2" size="2">
+<input type="text" name="9shMatrix5" maxlength="2" size="2">
+<input type="text" name="9shMatrix6" maxlength="2" size="2">
+<input type="text" name="9shMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="9shMatrix8" maxlength="2" size="2">
+<input type="text" name="9shMatrix9" maxlength="2" size="2">
+<input type="text" name="9shMatrix10" maxlength="2" size="2">
+<input type="text" name="9shMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="9shMatrix12" maxlength="2" size="2">
+<input type="text" name="9shMatrix13" maxlength="2" size="2">
+<input type="text" name="9shMatrix14" maxlength="2" size="2">
+<input type="text" name="9shMatrix15" maxlength="2" size="2"><br />
+<br />
+</td>
+</tr>
+<tr>
+<td>
+The MixColumn step is left out of the last round
+</td>
+<td>
+
+</td>
+</tr>
+<tr>
+<td>
+<button onclick="addRoundKey(10)">Perform AddRoundKey Step</button>
+<br />
+<input type="text" name="10kMatrix0" maxlength="2" size="2">
+<input type="text" name="10kMatrix1" maxlength="2" size="2">
+<input type="text" name="10kMatrix2" maxlength="2" size="2">
+<input type="text" name="10kMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="10kMatrix4" maxlength="2" size="2">
+<input type="text" name="10kMatrix5" maxlength="2" size="2">
+<input type="text" name="10kMatrix6" maxlength="2" size="2">
+<input type="text" name="10kMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="10kMatrix8" maxlength="2" size="2">
+<input type="text" name="10kMatrix9" maxlength="2" size="2">
+<input type="text" name="10kMatrix10" maxlength="2" size="2">
+<input type="text" name="10kMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="10kMatrix12" maxlength="2" size="2">
+<input type="text" name="10kMatrix13" maxlength="2" size="2">
+<input type="text" name="10kMatrix14" maxlength="2" size="2">
+<input type="text" name="10kMatrix15" maxlength="2" size="2"><br />
+
+</td>
+<td>
+<strong>Output:</strong><br />
+<input type="text" name="10aMatrix0" maxlength="2" size="2">
+<input type="text" name="10aMatrix1" maxlength="2" size="2">
+<input type="text" name="10aMatrix2" maxlength="2" size="2">
+<input type="text" name="10aMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="10aMatrix4" maxlength="2" size="2">
+<input type="text" name="10aMatrix5" maxlength="2" size="2">
+<input type="text" name="10aMatrix6" maxlength="2" size="2">
+<input type="text" name="10aMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="10aMatrix8" maxlength="2" size="2">
+<input type="text" name="10aMatrix9" maxlength="2" size="2">
+<input type="text" name="10aMatrix10" maxlength="2" size="2">
+<input type="text" name="10aMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="10aMatrix12" maxlength="2" size="2">
+<input type="text" name="10aMatrix13" maxlength="2" size="2">
+<input type="text" name="10aMatrix14" maxlength="2" size="2">
+<input type="text" name="10aMatrix15" maxlength="2" size="2"><br />
+</td>
+</tr>
+
+</table>
+
+<br />
+References:
 <ul>
+<li>Dr. Scott Craver's Introduction to Cryptography and Information Security class, EECE 405 at Binghamton University</li>
 <li><a href="http://en.wikipedia.org/wiki/Finite_field_arithmetic#Multiplication">http://en.wikipedia.org/wiki/Finite_field_arithmetic#Multiplication</a></li>
 <li><a href="http://people.eku.edu/styere/Encrypt/JS-AES.html">http://people.eku.edu/styere/Encrypt/JS-AES.html</a></li>
 <li><a href="https://engineering.purdue.edu/kak/compsec/NewLectures/Lecture8.pdf">https://engineering.purdue.edu/kak/compsec/NewLectures/Lecture8.pdf</a></li>
 <li><a href="http://www.cs.bc.edu/~straubin/cs381-05/blockciphers/rijndael_ingles2004.swf">http://www.cs.bc.edu/~straubin/cs381-05/blockciphers/rijndael_ingles2004.swf</a></li>
 <li><a href="http://en.wikipedia.org/wiki/Advanced_Encryption_Standard">http://en.wikipedia.org/wiki/Advanced_Encryption_Standard</a></li>
-<li><a href=""></a></li>
 </ul>
 
 </body>
