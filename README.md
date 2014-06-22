@@ -1,2 +1,4 @@
 AES-visualizer
 ==============
+
+This tool, written in Javascript, will allow you to input a plaintext 128 bit message and key (both in hex), and then perform AES encryption on that message.  The encryption is step by step (and modifiable during each step) so that the end user can see how the bytes are affected after each round of the Rijndael cipher.  I originally got the idea for this during my Introduction to Cryptography and Information Security class in Fall 2013.  I was doing homework assignments where we had to do encryption by hand, and my ciphertext kept coming out not matching the results I checked using the computer.  I wished that there was a website that allowed you to see step by step how the bytes are changed, so I went and made one.
