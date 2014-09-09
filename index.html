@@ -184,6 +184,32 @@ function allSteps()	{
 	addRoundKey(10);
 }
 
+function restOfSteps(curStep,round)	{
+	//first perform steps to get to start of next round
+	if (curStep == "addRoundKey")	{
+		subBytes(round);
+		shiftRows(round);
+		mixColumns(round);
+	}
+	if (curStep == "subBytes")	{
+		shiftRows(round);
+		mixColumns(round);
+	}
+	if (curStep == "shiftRows")	{
+		mixColumns(round);
+	}
+	//perform all of the remaining rounds
+	for (var i = (round+1);i < 10; i++)	{
+		addRoundKey(i);
+		subBytes(i);
+		shiftRows(i);
+		if (i != 9)	{
+			mixColumns(i);
+		}
+	}
+	addRoundKey(10);
+}
+
 //	ToDo:
 //	-- create a page for the key expansion
 
@@ -266,6 +292,8 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="addRoundKey(0)">Add Round Key</button><br />
+<br /><button onclick="restOfSteps('addRoundKey',0)">Encrypt from here</button>
+<br />
 <input type="text" name="0kMatrix0" maxlength="2" size="2">
 <input type="text" name="0kMatrix1" maxlength="2" size="2">
 <input type="text" name="0kMatrix2" maxlength="2" size="2">
@@ -305,6 +333,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td><strong>Round 1</strong><br />
 <button onclick="subBytes(0)">Perform SubBytes Step</button>
+<br /><button onclick="restOfSteps('subBytes',0)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="0sMatrix0" maxlength="2" size="2">
@@ -329,6 +358,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="shiftRows(0)">Perform ShiftRows Step</button>
+<br /><button onclick="restOfSteps('shiftRows',0)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="0shMatrix0" maxlength="2" size="2">
@@ -353,6 +383,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="mixColumns(0)">Perform MixColumns Step</button>
+<br /><button onclick="restOfSteps('mixColumns',0)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="0mcMatrix0" maxlength="2" size="2">
@@ -377,6 +408,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="addRoundKey(1)">Perform AddRoundKey Step</button>
+<br /><button onclick="restOfSteps('addRoundKey',1)">Encrypt from here</button>
 <br />
 <input type="text" name="1kMatrix0" maxlength="2" size="2">
 <input type="text" name="1kMatrix1" maxlength="2" size="2">
@@ -419,6 +451,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td><strong>Round 2</strong><br />
 <button onclick="subBytes(1)">Perform SubBytes Step</button>
+<br /><button onclick="restOfSteps('subBytes',1)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="1sMatrix0" maxlength="2" size="2">
@@ -443,6 +476,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="shiftRows(1)">Perform ShiftRows Step</button>
+<br /><button onclick="restOfSteps('shiftRows',1)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="1shMatrix0" maxlength="2" size="2">
@@ -467,6 +501,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="mixColumns(1)">Perform MixColumns Step</button>
+<br /><button onclick="restOfSteps('mixColumns',1)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="1mcMatrix0" maxlength="2" size="2">
@@ -491,6 +526,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="addRoundKey(2)">Perform AddRoundKey Step</button>
+<br /><button onclick="restOfSteps('addRoundKey',2)">Encrypt from here</button>
 <br />
 <input type="text" name="2kMatrix0" maxlength="2" size="2">
 <input type="text" name="2kMatrix1" maxlength="2" size="2">
@@ -533,6 +569,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td><strong>Round 3</strong><br />
 <button onclick="subBytes(2)">Perform SubBytes Step</button>
+<br /><button onclick="restOfSteps('subBytes',2)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="2sMatrix0" maxlength="2" size="2">
@@ -557,6 +594,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="shiftRows(2)">Perform ShiftRows Step</button>
+<br /><button onclick="restOfSteps('shiftRows',2)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="2shMatrix0" maxlength="2" size="2">
@@ -581,6 +619,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="mixColumns(2)">Perform MixColumns Step</button>
+<br /><button onclick="restOfSteps('mixColumns',2)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="2mcMatrix0" maxlength="2" size="2">
@@ -605,6 +644,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="addRoundKey(3)">Perform AddRoundKey Step</button>
+<br /><button onclick="restOfSteps('addRoundKey',3)">Encrypt from here</button>
 <br />
 <input type="text" name="3kMatrix0" maxlength="2" size="2">
 <input type="text" name="3kMatrix1" maxlength="2" size="2">
@@ -647,6 +687,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td><strong>Round 4</strong><br />
 <button onclick="subBytes(3)">Perform SubBytes Step</button>
+<br /><button onclick="restOfSteps('subBytes',3)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="3sMatrix0" maxlength="2" size="2">
@@ -671,6 +712,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="shiftRows(3)">Perform ShiftRows Step</button>
+<br /><button onclick="restOfSteps('shiftRows',3)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="3shMatrix0" maxlength="2" size="2">
@@ -695,6 +737,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="mixColumns(3)">Perform MixColumns Step</button>
+<br /><button onclick="restOfSteps('mixColumns',3)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="3mcMatrix0" maxlength="2" size="2">
@@ -719,6 +762,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="addRoundKey(4)">Perform AddRoundKey Step</button>
+<br /><button onclick="restOfSteps('addRoundKey',4)">Encrypt from here</button>
 <br />
 <input type="text" name="4kMatrix0" maxlength="2" size="2">
 <input type="text" name="4kMatrix1" maxlength="2" size="2">
@@ -761,6 +805,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td><strong>Round 5</strong><br />
 <button onclick="subBytes(4)">Perform SubBytes Step</button>
+<br /><button onclick="restOfSteps('subBytes',4)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="4sMatrix0" maxlength="2" size="2">
@@ -785,6 +830,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="shiftRows(4)">Perform ShiftRows Step</button>
+<br /><button onclick="restOfSteps('shiftRows',4)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="4shMatrix0" maxlength="2" size="2">
@@ -809,6 +855,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="mixColumns(4)">Perform MixColumns Step</button>
+<br /><button onclick="restOfSteps('mixColumns',4)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="4mcMatrix0" maxlength="2" size="2">
@@ -833,6 +880,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="addRoundKey(5)">Perform AddRoundKey Step</button>
+<br /><button onclick="restOfSteps('addRoundKey',5)">Encrypt from here</button>
 <br />
 <input type="text" name="5kMatrix0" maxlength="2" size="2">
 <input type="text" name="5kMatrix1" maxlength="2" size="2">
@@ -875,6 +923,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td><strong>Round 6</strong><br />
 <button onclick="subBytes(5)">Perform SubBytes Step</button>
+<br /><button onclick="restOfSteps('subBytes',5)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="5sMatrix0" maxlength="2" size="2">
@@ -899,6 +948,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="shiftRows(5)">Perform ShiftRows Step</button>
+<br /><button onclick="restOfSteps('shiftRows',5)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="5shMatrix0" maxlength="2" size="2">
@@ -923,6 +973,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="mixColumns(5)">Perform MixColumns Step</button>
+<br /><button onclick="restOfSteps('mixColumns',5)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="5mcMatrix0" maxlength="2" size="2">
@@ -947,6 +998,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="addRoundKey(6)">Perform AddRoundKey Step</button>
+<br /><button onclick="restOfSteps('addRoundKey',6)">Encrypt from here</button>
 <br />
 <input type="text" name="6kMatrix0" maxlength="2" size="2">
 <input type="text" name="6kMatrix1" maxlength="2" size="2">
@@ -989,6 +1041,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td><strong>Round 7</strong><br />
 <button onclick="subBytes(6)">Perform SubBytes Step</button>
+<br /><button onclick="restOfSteps('subBytes',6)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="6sMatrix0" maxlength="2" size="2">
@@ -1013,6 +1066,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="shiftRows(6)">Perform ShiftRows Step</button>
+<br /><button onclick="restOfSteps('shiftRows',6)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="6shMatrix0" maxlength="2" size="2">
@@ -1037,6 +1091,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="mixColumns(6)">Perform MixColumns Step</button>
+<br /><button onclick="restOfSteps('mixColumns',6)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="6mcMatrix0" maxlength="2" size="2">
@@ -1061,6 +1116,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="addRoundKey(7)">Perform AddRoundKey Step</button>
+<br /><button onclick="restOfSteps('addRoundKey',7)">Encrypt from here</button>
 <br />
 <input type="text" name="7kMatrix0" maxlength="2" size="2">
 <input type="text" name="7kMatrix1" maxlength="2" size="2">
@@ -1103,6 +1159,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td><strong>Round 8</strong><br />
 <button onclick="subBytes(7)">Perform SubBytes Step</button>
+<br /><button onclick="restOfSteps('subBytes',7)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="7sMatrix0" maxlength="2" size="2">
@@ -1127,6 +1184,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="shiftRows(7)">Perform ShiftRows Step</button>
+<br /><button onclick="restOfSteps('shiftRows',7)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="7shMatrix0" maxlength="2" size="2">
@@ -1151,6 +1209,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="mixColumns(7)">Perform MixColumns Step</button>
+<br /><button onclick="restOfSteps('mixColumns',7)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="7mcMatrix0" maxlength="2" size="2">
@@ -1175,6 +1234,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="addRoundKey(8)">Perform AddRoundKey Step</button>
+<br /><button onclick="restOfSteps('addRoundKey',8)">Encrypt from here</button>
 <br />
 <input type="text" name="8kMatrix0" maxlength="2" size="2">
 <input type="text" name="8kMatrix1" maxlength="2" size="2">
@@ -1217,6 +1277,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td><strong>Round 9</strong><br />
 <button onclick="subBytes(8)">Perform SubBytes Step</button>
+<br /><button onclick="restOfSteps('subBytes',8)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="8sMatrix0" maxlength="2" size="2">
@@ -1241,6 +1302,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="shiftRows(8)">Perform ShiftRows Step</button>
+<br /><button onclick="restOfSteps('shiftRows',8)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="8shMatrix0" maxlength="2" size="2">
@@ -1265,6 +1327,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="mixColumns(8)">Perform MixColumns Step</button>
+<br /><button onclick="restOfSteps('mixColumns',8)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="8mcMatrix0" maxlength="2" size="2">
@@ -1289,6 +1352,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="addRoundKey(9)">Perform AddRoundKey Step</button>
+<br /><button onclick="restOfSteps('addRoundKey',9)">Encrypt from here</button>
 <br />
 <input type="text" name="9kMatrix0" maxlength="2" size="2">
 <input type="text" name="9kMatrix1" maxlength="2" size="2">
@@ -1331,6 +1395,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td><strong>Round 10</strong><br />
 <button onclick="subBytes(9)">Perform SubBytes Step</button>
+<br /><button onclick="restOfSteps('subBytes',9)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="9sMatrix0" maxlength="2" size="2">
@@ -1355,6 +1420,7 @@ The SubByte transformation is the first step of each round.  Each byte in our ma
 <tr>
 <td>
 <button onclick="shiftRows(9)">Perform ShiftRows Step</button>
+<br /><button onclick="restOfSteps('shiftRows',9)">Encrypt from here</button>
 </td>
 <td>
 <input type="text" name="9shMatrix0" maxlength="2" size="2">
