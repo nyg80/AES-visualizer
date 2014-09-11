@@ -137,6 +137,9 @@ function addRoundKey(num)	{
 		for (var i=0;i<16;i++)	{
 			document.getElementsByName("10aMatrix"+i)[0].value = (parseInt(document.getElementsByName("10kMatrix"+i)[0].value,16) ^ parseInt(document.getElementsByName("9shMatrix"+i)[0].value,16)).toString(16);
 		}
+		for (var i=0;i<16;i++)	{
+			document.getElementsByName("10aMatrix"+i)[1].value = document.getElementsByName("10aMatrix"+i)[0].value;
+		}
 	}
 }
 
@@ -184,6 +187,8 @@ function allSteps()	{
 	addRoundKey(10);
 }
 
+
+//ToDo: this function doesn't work when called with parameter 'round = 9' , fix it
 function restOfSteps(curStep,round)	{
 	//first perform steps to get to start of next round
 	if (curStep == "addRoundKey")	{
@@ -216,6 +221,7 @@ function restOfSteps(curStep,round)	{
 </script>
 </head>
 <body>
+<div style="width: 60%">
 <p>AES takes an input of 128 bits, grouped into 16 bytes of 8 bits.  Enter your 128 bits below in hexadecimal format.</p>
 
 <p>Plaintext (in hex): <br />
@@ -1505,6 +1511,25 @@ References:
 <li><a href="http://www.cs.bc.edu/~straubin/cs381-05/blockciphers/rijndael_ingles2004.swf">http://www.cs.bc.edu/~straubin/cs381-05/blockciphers/rijndael_ingles2004.swf</a></li>
 <li><a href="http://en.wikipedia.org/wiki/Advanced_Encryption_Standard">http://en.wikipedia.org/wiki/Advanced_Encryption_Standard</a></li>
 </ul>
-
+</div>
+<div style="position:fixed; top: 20px; right: 20px;">
+<strong>Output:</strong><br />
+<input type="text" name="10aMatrix0" maxlength="2" size="2">
+<input type="text" name="10aMatrix1" maxlength="2" size="2">
+<input type="text" name="10aMatrix2" maxlength="2" size="2">
+<input type="text" name="10aMatrix3" maxlength="2" size="2"><br />
+<input type="text" name="10aMatrix4" maxlength="2" size="2">
+<input type="text" name="10aMatrix5" maxlength="2" size="2">
+<input type="text" name="10aMatrix6" maxlength="2" size="2">
+<input type="text" name="10aMatrix7" maxlength="2" size="2"><br />
+<input type="text" name="10aMatrix8" maxlength="2" size="2">
+<input type="text" name="10aMatrix9" maxlength="2" size="2">
+<input type="text" name="10aMatrix10" maxlength="2" size="2">
+<input type="text" name="10aMatrix11" maxlength="2" size="2"><br />
+<input type="text" name="10aMatrix12" maxlength="2" size="2">
+<input type="text" name="10aMatrix13" maxlength="2" size="2">
+<input type="text" name="10aMatrix14" maxlength="2" size="2">
+<input type="text" name="10aMatrix15" maxlength="2" size="2"><br />
+</div>
 </body>
 </html>
